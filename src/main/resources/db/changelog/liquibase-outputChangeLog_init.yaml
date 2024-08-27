@@ -1,0 +1,22 @@
+databaseChangeLog:
+- changeSet:
+    id: sprint-1-1-1
+    author: rialex11
+    changes:
+    - createTable:
+        columns:
+        - column:
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+              primaryKeyName: messages_updated_pkey
+            name: id
+            type: BIGINT
+        - column:
+            name: code
+            type: VARCHAR(255)
+        - column:
+            name: label
+            type: VARCHAR(255)
+        tableName: messages_updated
+

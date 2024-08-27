@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: kafka_consumer
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+  kafka:
+    bootstrap-servers: localhost:9092
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/postgres
+    username: postgres
+    password: test
+  liquibase:
+    change-log: classpath:db/changelog/changelog-master.yaml
+    enabled: true
+app:
+  kafka:
+    kafkaMessageTopic: message-topic1
+    kafkaMessageGroupId: kafka-message-group-id1
+server:
+  port: 8081
