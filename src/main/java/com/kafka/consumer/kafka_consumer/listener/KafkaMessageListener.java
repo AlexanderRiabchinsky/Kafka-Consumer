@@ -13,18 +13,15 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-//@Service
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class KafkaMessageListener {
     private final MessagesUpdatedRepository messagesRepository;
 
-
     @KafkaListener(
             topics = "${app.kafka.kafkaMessageTopic}",
             groupId = "${app.kafka.kafkaMessageGroupId}",
-//            concurrency = "3",
             containerFactory = "kafkaMessageConcurrentKafkaListenerContainerFactory",
             autoStartup = "${listen.auto.start:true}"
     )
@@ -33,16 +30,13 @@ public class KafkaMessageListener {
                        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                        @Header(KafkaHeaders.RECEIVED_PARTITION) Integer partition,
                        @Header(KafkaHeaders.RECEIVED_TIMESTAMP) Long timestamp
-      //                 @Header(KafkaHeaders.OFFSET) List<Long> offsets
     ) {
-  //      for(KafkaMessage kafkaMessage: kafkaMessages) {
-            log.info("Received message: {}", kafkaMessage);
-                   log.info("Key: {}, Partition: {}, Topic: {}. Timestamp: {}", key, partition, topic, timestamp);
+        log.info("Received message: {}", kafkaMessage);
+        log.info("Key: {}, Partition: {}, Topic: {}. Timestamp: {}", key, partition, topic, timestamp);
 
-            MessageUpdated message = new MessageUpdated();
-            message.setCode(kafkaMessage.getCode());
-            message.setLabel(kafkaMessage.getLabel());
-            messagesRepository.save(message);
- //       }
+        MessageUpdated message = new MessageUpdated();
+        message.setCode(kafkaMessage.getCode());
+        message.setLabel(kafkaMessage.getLabel());
+        messagesRepository.save(message);
     }
 }

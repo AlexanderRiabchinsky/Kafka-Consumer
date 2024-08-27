@@ -13,6 +13,8 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.CommonErrorHandler;
+import org.springframework.kafka.support.converter.StringJsonMessageConverter;
+import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.HashMap;
@@ -28,40 +30,13 @@ public class KafkaConfiguration {
     @Value("${app.kafka.kafkaMessageGroupId}")
     private String kafkaMessageGroupId;
 
-//    @Bean
-//    public ProducerFactory<String, KafkaMessage> kafkaMessageProducerFactory(ObjectMapper objectMapper){
-//        Map<String,Object> config = new HashMap<>();
-//
-//        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,bootstrapServers);
-//        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-//        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-//
-//        return new DefaultKafkaProducerFactory<>(config,new StringSerializer(), new JsonSerializer<>(objectMapper));
-//    }
-//
-//    @Bean
-//    public KafkaTemplate<String, KafkaMessage> kafkaTemplate(ProducerFactory<String, KafkaMessage> kafkaMessageProducerFactory){
-//        return new KafkaTemplate<>(kafkaMessageProducerFactory);
-//    }
-
-
-//    @Bean
-//    public ConsumerFactory<String, KafkaMessage> consumerFactory() {
-//        return new DefaultKafkaConsumerFactory<>(consumerConfigs());
-//    }
-//
-//    @Bean
-//    public ConcurrentKafkaListenerContainerFactory<String, KafkaMessage> kafkaListenerContainerFactory() {
-//        ConcurrentKafkaListenerContainerFactory<String, KafkaMessage> factory = new ConcurrentKafkaListenerContainerFactory<>();
-//        factory.setConsumerFactory(consumerFactory());
-// //       factory.setBatchListener(true);
-// //       factory.getContainerProperties().setBatchErrorHandler(new BatchLoggingErrorHandler());
-//        return factory;
-//    }
-
     @Bean
     CommonErrorHandler commonErrorHandler() {
         return new KafkaErrorHandler();
+    }
+    @Bean
+    public StringJsonMessageConverter jsonConverter() {
+        return new StringJsonMessageConverter();
     }
     @Bean
     public ConsumerFactory<String,KafkaMessage> kafkaMessageConsumerFactory(ObjectMapper objectMapper){
@@ -71,7 +46,10 @@ public class KafkaConfiguration {
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         config.put(ConsumerConfig.GROUP_ID_CONFIG,kafkaMessageGroupId);
+        config.put(ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS, ErrorHandlingDeserializer.class);
+        config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         config.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
+        config.put(JsonDeserializer.TYPE_MAPPINGS,"KafkaMessage:com.kafka.consumer.kafka_consumer.model.KafkaMessage");
 
         return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(), new JsonDeserializer<>(objectMapper));
     }
